@@ -1,8 +1,14 @@
 import { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { config } from 'dotenv';
-import { GameDig } from 'gamedig';;
+import { GameDig } from 'gamedig';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
@@ -13,16 +19,10 @@ const TOKEN = process.env.DISCORD_TOKEN;
 
 let statusMessage;
 
-// Load and parse KSF map data from external source
-const fs = require('fs').promises;
-const path = require('path');
-
 async function loadMapData() {
   try {
-    // Construct the path to the file located in the same directory as this script
     const filePath = path.join(__dirname, 'surf_.json');
 
-    // Read the file and parse the JSON
     const fileContent = await fs.readFile(filePath, 'utf8');
     const mapData = JSON.parse(fileContent);
 
@@ -36,10 +36,10 @@ async function loadMapData() {
 
 async function updateServerStatus() {
   try {
-    // Repo URL from the C# snippet
     const mapImageRepoUrl = "https://raw.githubusercontent.com/Letaryat/poor-sharptimermappics/main/pics/";
 
-    const logoFile = new AttachmentBuilder('./assets/arnoldhublogo.png');
+    const logoPath = path.join(__dirname, 'assets', 'arnoldhublogo.png');
+    const logoFile = new AttachmentBuilder(logoPath);
 
     const state = await GameDig.query({
       type: 'cs2',
@@ -62,7 +62,6 @@ async function updateServerStatus() {
       .setTimestamp()
       .setFooter({ text: `Connect: connect surf.arnoldhub.com` });
 
-    // UPDATED: Only displays Tier and Type (Capitalized to match your JSON)
     if (mapInfo) {
       embed.addFields({
         name: 'Map Info',
