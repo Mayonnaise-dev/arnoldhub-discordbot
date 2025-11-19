@@ -42,7 +42,7 @@ async function updateServerStatus() {
     const logoFile = new AttachmentBuilder(logoPath);
 
     const state = await GameDig.query({
-      type: 'cs2',
+      type: 'csgo',
       host: 'surf.arnoldhub.com',
       port: 27015
     });
