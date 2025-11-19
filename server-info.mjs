@@ -47,9 +47,6 @@ async function updateServerStatus() {
       port: 27015
     });
 
-    console.log('✅ Fetched server info:', state);
-    console.log('✅ Fetched server info:', state.players);
-
     const mapData = await loadMapData();
     const mapInfo = mapData[state.map.toLowerCase()] || null;
 
@@ -77,16 +74,6 @@ async function updateServerStatus() {
         value: 'No info found for this map in local database.',
         inline: false
       });
-    }
-
-    if (state.players.length > 0) {
-      const players = state.players
-        .map(p => `• ${p.name || 'Unnamed'}${p.score !== undefined ? ` - Score: ${p.score}` : ''}`)
-        .slice(0, 20);
-
-      embed.addFields({ name: 'Players Online', value: players.join('\n') });
-    } else {
-      embed.addFields({ name: 'Players Online', value: 'No players currently online' });
     }
 
     const channel = await client.channels.fetch(CHANNEL_ID);
