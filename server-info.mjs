@@ -1,8 +1,6 @@
-import { Client, GatewayIntentBits, EmbedBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { config } from 'dotenv';
-import { GameDig } from 'gamedig';
-
-import ArnoldhubLogo from './assets/arnoldhublogo.png'
+import { GameDig } from 'gamedig';;
 
 config();
 
@@ -41,6 +39,8 @@ async function updateServerStatus() {
     // Repo URL from the C# snippet
     const mapImageRepoUrl = "https://raw.githubusercontent.com/Letaryat/poor-sharptimermappics/main/pics/";
 
+    const logoFile = new AttachmentBuilder('./assets/arnoldhublogo.png');
+
     const state = await GameDig.query({
       type: 'cs2',
       host: 'surf.arnoldhub.com',
@@ -54,7 +54,7 @@ async function updateServerStatus() {
       .setTitle('Arnoldhub')
       .setColor('DarkBlue')
       .setImage(`${mapImageRepoUrl}${state.map}.jpg`)
-      .setThumbnail(ArnoldhubLogo)
+      .setThumbnail('attachment://arnoldhublogo.png')
       .addFields(
         { name: 'Map', value: state.map, inline: true },
         { name: 'Players', value: `${state.players.length}/64`, inline: true }
@@ -89,9 +89,15 @@ async function updateServerStatus() {
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!statusMessage) {
-      statusMessage = await channel.send({ embeds: [embed] });
+      statusMessage = await channel.send({
+        embeds: [embed],
+        files: [logoFile]
+      });
     } else {
-      await statusMessage.edit({ embeds: [embed] });
+      await statusMessage.edit({
+        embeds: [embed],
+        files: [logoFile]
+      });
     }
 
   } catch (err) {
