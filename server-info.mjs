@@ -47,8 +47,8 @@ async function updateServerStatus() {
       port: 27015
     });
 
+    console.log('✅ Fetched server info:', state);
     console.log('✅ Fetched server info:', state.players);
-    console.log('✅ Fetched server info:', state.players[0].raw);
 
     const mapData = await loadMapData();
     const mapInfo = mapData[state.map.toLowerCase()] || null;
