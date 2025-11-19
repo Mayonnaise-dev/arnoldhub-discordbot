@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  arnoldhub-discordbot:
+    build: .
+    container_name: arnoldhub-discordbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Connect the bot to your existing 'proxy' network
+    networks:
+      - proxy
+
+networks:
+  # This tells Docker to use the 'proxy' network
+  # that was created by your Portainer compose file.
+  proxy:
+    external: true

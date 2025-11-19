@@ -1,0 +1,19 @@
+{
+  "name": "arnoldhub-discordbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server-info.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node server-info.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.1",
+    "gamedig": "^5.3.1",
+    "node-fetch": "^3.3.2"
+  }
+}
