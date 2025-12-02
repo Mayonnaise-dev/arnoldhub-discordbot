@@ -43,7 +43,7 @@ async function updateServerStatus() {
 
     const state = await GameDig.query({
       type: 'csgo',
-      host: 'surf.arnoldhub.com',
+      host: 'surfing.arnoldhub.com',
       port: 27015
     });
 
@@ -60,7 +60,7 @@ async function updateServerStatus() {
         { name: 'Players', value: `${state.players.length}/64`, inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: `Connect: connect surf.arnoldhub.com` });
+      .setFooter({ text: `Connect: connect surfing.arnoldhub.com` });
 
     if (mapInfo) {
       embed.addFields({
