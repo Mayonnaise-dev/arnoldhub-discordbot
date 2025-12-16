@@ -1,5 +1,9 @@
 # Server Info Discord Bot
 
+<div align="center">
+  <img src="screenshots/preview.png" alt="Bot Preview" width="600"/>
+</div>
+
 A Discord bot that displays real-time CS:GO/CS2 surf server information with map details, player counts, and map thumbnails. The bot automatically updates server status in a designated Discord channel.
 
 ## Features
