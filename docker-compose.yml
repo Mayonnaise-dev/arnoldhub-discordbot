@@ -1,19 +1,12 @@
 version: "3.8"
 
 services:
-  arnoldhub-discordbot:
+  server-info-discordbot:
     build: .
-    container_name: arnoldhub-discordbot
+    container_name: server-info-discordbot
     restart: unless-stopped
     env_file:
       - .env
-    # Connect the bot to your existing 'proxy' network
-    networks:
-      - proxy
     volumes:
-      - /home/arnold/docker/arnoldhub-surfmaps/surf_.json:/usr/src/app/surf_.json:ro
-networks:
-  # This tells Docker to use the 'proxy' network
-  # that was created by your Portainer compose file.
-  proxy:
-    external: true
+      # Mount surf map data (update path to your surf_.json location)
+      - ./surf_.json:/usr/src/app/surf_.json:ro

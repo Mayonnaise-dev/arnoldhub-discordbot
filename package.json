@@ -1,15 +1,32 @@
 {
-  "name": "arnoldhub-discordbot",
+  "name": "server-info-discordbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord bot that displays real-time CS:GO/CS2 surf server information with map details and player counts",
   "main": "server-info.mjs",
   "type": "module",
   "scripts": {
-    "start": "node server-info.mjs"
+    "start": "node server-info.mjs",
+    "dev": "nodemon server-info.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/server-info-discordbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/server-info-discordbot/issues"
+  },
+  "homepage": "https://github.com/yourusername/server-info-discordbot#readme",
+  "keywords": [
+    "discord",
+    "bot",
+    "csgo",
+    "cs2",
+    "surf",
+    "server-status",
+    "game-server"
+  ],
+  "author": "Arnold",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.1",

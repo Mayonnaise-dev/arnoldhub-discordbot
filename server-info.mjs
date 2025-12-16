@@ -1,78 +1,98 @@
-import { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder } from 'discord.js';
-import { config } from 'dotenv';
-import { GameDig } from 'gamedig';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder,
+  AttachmentBuilder,
+} from "discord.js";
+import { config } from "dotenv";
+import { GameDig } from "gamedig";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 config();
+
+// Validate required environment variables
+if (!process.env.DISCORD_TOKEN) {
+  console.error("❌ Error: DISCORD_TOKEN is required in .env file");
+  process.exit(1);
+}
+
+if (!process.env.CHANNEL_ID) {
+  console.error("❌ Error: CHANNEL_ID is required in .env file");
+  process.exit(1);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const TOKEN = process.env.DISCORD_TOKEN;
+const SERVER_HOST = process.env.SERVER_HOST || "surfing.arnoldhub.com";
+const SERVER_PORT = parseInt(process.env.SERVER_PORT) || 27015;
+const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
+const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
 
 let statusMessage;
 
 async function loadMapData() {
   try {
-    const filePath = path.join(__dirname, 'surf_.json');
+    const filePath = path.join(__dirname, "surf_.json");
 
-    const fileContent = await fs.readFile(filePath, 'utf8');
+    const fileContent = await fs.readFile(filePath, "utf8");
     const mapData = JSON.parse(fileContent);
 
     return mapData;
-
   } catch (error) {
-    console.error('❌ Failed to load local map data:', error);
+    console.error("❌ Failed to load local map data:", error);
     return {};
   }
 }
 
 async function updateServerStatus() {
   try {
-    const mapImageRepoUrl = "https://raw.githubusercontent.com/Letaryat/poor-sharptimermappics/main/pics/";
+    const mapImageRepoUrl =
+      "https://raw.githubusercontent.com/Letaryat/poor-sharptimermappics/main/pics/";
 
-    const logoPath = path.join(__dirname, 'assets', 'arnoldhublogo.png');
+    const logoPath = path.join(__dirname, "assets", "arnoldhublogo.png");
     const logoFile = new AttachmentBuilder(logoPath);
 
     const state = await GameDig.query({
-      type: 'csgo',
-      host: 'surfing.arnoldhub.com',
-      port: 27015
+      type: SERVER_TYPE,
+      host: SERVER_HOST,
+      port: SERVER_PORT,
     });
 
     const mapData = await loadMapData();
     const mapInfo = mapData[state.map.toLowerCase()] || null;
 
     const embed = new EmbedBuilder()
-      .setTitle('Arnoldhub')
-      .setColor('DarkBlue')
+      .setTitle("Arnoldhub")
+      .setColor("DarkBlue")
       .setImage(`${mapImageRepoUrl}${state.map}.jpg`)
-      .setThumbnail('attachment://arnoldhublogo.png')
+      .setThumbnail("attachment://arnoldhublogo.png")
       .addFields(
-        { name: 'Map', value: state.map, inline: true },
-        { name: 'Players', value: `${state.players.length}/64`, inline: true }
+        { name: "Map", value: state.map, inline: true },
+        { name: "Players", value: `${state.players.length}/64`, inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: `Connect: connect surfing.arnoldhub.com` });
+      .setFooter({ text: `Connect: connect ${SERVER_HOST}` });
 
     if (mapInfo) {
       embed.addFields({
-        name: 'Map Info',
+        name: "Map Info",
         value: `**Tier**: ${mapInfo.Tier}\n**Type**: ${mapInfo.Type}`,
-        inline: false
+        inline: false,
       });
     } else {
       embed.addFields({
-        name: 'Map Info',
-        value: 'No info found for this map in local database.',
-        inline: false
+        name: "Map Info",
+        value: "No info found for this map in local database.",
+        inline: false,
       });
     }
 
@@ -80,24 +100,33 @@ async function updateServerStatus() {
     if (!statusMessage) {
       statusMessage = await channel.send({
         embeds: [embed],
-        files: [logoFile]
+        files: [logoFile],
       });
     } else {
       await statusMessage.edit({
         embeds: [embed],
-        files: [logoFile]
+        files: [logoFile],
       });
     }
-
   } catch (err) {
-    console.error('Error fetching server info:', err);
+    console.error("Error fetching server info:", err);
   }
 }
 
-client.once('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+client.once("ready", () => {
+  console.log(`✅ Logged in as ${client.user.tag}!`);
+  console.log(`📡 Monitoring server: ${SERVER_HOST}:${SERVER_PORT}`);
+  console.log(`📢 Posting updates to channel: ${CHANNEL_ID}`);
+  console.log(`⏱️  Update interval: ${UPDATE_INTERVAL / 1000} seconds`);
   updateServerStatus();
-  setInterval(updateServerStatus, 60 * 1000);
+  setInterval(updateServerStatus, UPDATE_INTERVAL);
 });
 
-client.login(TOKEN);
+client.on("error", (error) => {
+  console.error("❌ Discord client error:", error);
+});
+
+client.login(TOKEN).catch((error) => {
+  console.error("❌ Failed to login to Discord:", error);
+  process.exit(1);
+});
