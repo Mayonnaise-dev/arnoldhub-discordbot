@@ -11,7 +11,7 @@ services:
     networks:
       - proxy
     volumes:
-      - /home/arnold/docker/shared-assets/surf_.json:/usr/src/app/surf_.json:ro
+      - /home/arnold/docker/arnoldhub-surfmaps/surf_.json:/usr/src/app/surf_.json:ro
 networks:
   # This tells Docker to use the 'proxy' network
   # that was created by your Portainer compose file.
