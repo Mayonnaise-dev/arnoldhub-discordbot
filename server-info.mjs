@@ -38,7 +38,7 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
 const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
 const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
-const DATA_DIR = path.join(__dirname, "data");
+const DATA_DIR = path.join(__dirname, "assets");
 const MESSAGE_ID_FILE = path.join(DATA_DIR, "message-state.json");
 
 let statusMessage;

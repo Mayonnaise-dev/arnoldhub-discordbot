@@ -11,7 +11,6 @@ RUN npm ci --omit=dev
 
 # Copy application files
 COPY . .
-
 # Run as non-root user for security
 USER node
 

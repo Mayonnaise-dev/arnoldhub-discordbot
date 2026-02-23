@@ -119,14 +119,14 @@ All configuration is done through environment variables in your `.env` file:
 
 ## Message Persistence
 
-The bot automatically saves message state to a `data/message-state.json` file. When the bot restarts, it will:
+The bot automatically saves message state to a `assets/message-state.json` file. When the bot restarts, it will:
 
 1. Check if a previous message state exists
 2. Verify the message is in the correct channel
 3. Attempt to fetch and update the existing message
 4. Only create a new message if the previous one cannot be found (e.g., deleted or in a different channel)
 
-This ensures that your Discord channel doesn't get cluttered with multiple status messages after bot restarts or updates. The state file includes the message ID, channel ID, and last update timestamp for tracking. The `data/` directory is automatically created if it doesn't exist.
+This ensures that your Discord channel doesn't get cluttered with multiple status messages after bot restarts or updates. The state file includes the message ID, channel ID, and last update timestamp for tracking.
 
 ## Map Data
 
