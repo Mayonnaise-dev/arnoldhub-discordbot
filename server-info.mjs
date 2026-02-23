@@ -36,6 +36,8 @@ const SERVER_HOST = process.env.SERVER_HOST || "surfing.arnoldhub.com";
 const SERVER_PORT = parseInt(process.env.SERVER_PORT) || 27015;
 const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
+const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
+const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
 
 let statusMessage;
 
@@ -72,18 +74,24 @@ async function updateServerStatus() {
 
     const embed = new EmbedBuilder()
       .setTitle("Arnoldhub")
-      .setURL(`https://surf.arnoldhub.com/map/${state.map}`)
       .setColor("DarkBlue")
       .setImage(`${mapImageRepoUrl}${state.map}.jpg`)
       .setThumbnail("attachment://arnoldhublogo.png")
       .addFields(
         { name: "Map", value: state.map, inline: true },
-        { name: "Players", value: `${state.players.length}/64`, inline: true },
+        {
+          name: "Players",
+          value: `${state.players.length}/${SERVER_MAX_PLAYERS}`,
+          inline: true,
+        },
       )
-      .setTimestamp()
-      .setFooter({
+      .setTimestamp();
+
+    if (WEBPANEL_MAP_BASE_URL) {
+      embed.setURL(`${WEBPANEL_MAP_BASE_URL}${state.map}`).setFooter({
         text: `Click title to view map on webpanel`,
       });
+    }
 
     if (mapInfo) {
       embed.addFields({
@@ -98,6 +106,12 @@ async function updateServerStatus() {
         inline: false,
       });
     }
+
+    embed.addFields({
+      name: "Connect Info",
+      value: `connect ${SERVER_HOST}`,
+      inline: false,
+    });
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!statusMessage) {

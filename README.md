@@ -12,7 +12,8 @@ A Discord bot that displays real-time CS:GO/CS2 surf server information with map
 - 👥 Live player count display
 - 🗺️ Current map information with thumbnail images
 - 📊 Map tier and type information from local database
-- 🔄 Auto-updating status messages (default: every 60 seconds)
+- � Optional clickable link to webpanel map details
+- �🔄 Auto-updating status messages (default: every 60 seconds)
 - 🐳 Docker support for easy deployment
 - ⚙️ Configurable via environment variables
 
@@ -87,14 +88,15 @@ npm start
 
 All configuration is done through environment variables in your `.env` file:
 
-| Variable          | Description                           | Default                 |
-| ----------------- | ------------------------------------- | ----------------------- |
-| `DISCORD_TOKEN`   | Your Discord bot token                | Required                |
-| `CHANNEL_ID`      | Discord channel ID for status updates | Required                |
-| `SERVER_HOST`     | Your game server hostname or IP       | `surfing.arnoldhub.com` |
-| `SERVER_PORT`     | Your game server port                 | `27015`                 |
-| `SERVER_TYPE`     | Server type for GameDig               | `csgo`                  |
-| `UPDATE_INTERVAL` | Update interval in milliseconds       | `60000` (1 minute)      |
+| Variable                | Description                                                               | Default                 |
+| ----------------------- | ------------------------------------------------------------------------- | ----------------------- |
+| `DISCORD_TOKEN`         | Your Discord bot token                                                    | Required                |
+| `CHANNEL_ID`            | Discord channel ID for status updates                                     | Required                |
+| `SERVER_HOST`           | Your game server hostname or IP                                           | `surfing.arnoldhub.com` |
+| `SERVER_PORT`           | Your game server port                                                     | `27015`                 |
+| `SERVER_TYPE`           | Server type for GameDig                                                   | `csgo`                  |
+| `UPDATE_INTERVAL`       | Update interval in milliseconds                                           | `60000` (1 minute)      |
+| `WEBPANEL_MAP_BASE_URL` | Base URL for webpanel map links (e.g., `https://surf.arnoldhub.com/map/`) | Optional                |
 
 ## Getting Your Discord Bot Token
 
