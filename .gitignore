@@ -45,3 +45,5 @@ temp/
 
 # Runtime data
 data/
+
+assets/message-state.json
