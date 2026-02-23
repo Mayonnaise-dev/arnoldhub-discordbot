@@ -72,6 +72,7 @@ async function updateServerStatus() {
 
     const embed = new EmbedBuilder()
       .setTitle("Arnoldhub")
+      .setURL(`https://surf.arnoldhub.com/map/${state.map}`)
       .setColor("DarkBlue")
       .setImage(`${mapImageRepoUrl}${state.map}.jpg`)
       .setThumbnail("attachment://arnoldhublogo.png")
@@ -81,7 +82,7 @@ async function updateServerStatus() {
       )
       .setTimestamp()
       .setFooter({
-        text: `View map: https://surf.arnoldhub.com/map/${state.map}`,
+        text: `Click title to view map on webpanel`,
       });
 
     if (mapInfo) {
