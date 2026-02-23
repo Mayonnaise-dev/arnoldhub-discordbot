@@ -12,8 +12,9 @@ A Discord bot that displays real-time CS:GO/CS2 surf server information with map
 - 👥 Live player count display
 - 🗺️ Current map information with thumbnail images
 - 📊 Map tier and type information from local database
-- � Optional clickable link to webpanel map details
-- �🔄 Auto-updating status messages (default: every 60 seconds)
+- 🔗 Optional clickable link to webpanel map details
+- 🔄 Auto-updating status messages (default: every 60 seconds)
+- 💾 Message persistence - updates same message after bot restart
 - 🐳 Docker support for easy deployment
 - ⚙️ Configurable via environment variables
 
@@ -115,6 +116,16 @@ All configuration is done through environment variables in your `.env` file:
 1. Enable Developer Mode in Discord (Settings > Advanced > Developer Mode)
 2. Right-click on the channel where you want the bot to post
 3. Click "Copy Channel ID"
+
+## Message Persistence
+
+The bot automatically saves the message ID of the status update to a `.message-id` file. When the bot restarts, it will:
+
+1. Check if a previous message ID exists
+2. Attempt to fetch and update the existing message
+3. Only create a new message if the previous one cannot be found (e.g., deleted or in a different channel)
+
+This ensures that your Discord channel doesn't get cluttered with multiple status messages after bot restarts or updates.
 
 ## Map Data
 

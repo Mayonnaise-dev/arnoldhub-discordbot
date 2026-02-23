@@ -38,8 +38,26 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
 const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
 const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
+const MESSAGE_ID_FILE = path.join(__dirname, ".message-id");
 
 let statusMessage;
+
+async function loadMessageId() {
+  try {
+    const messageId = await fs.readFile(MESSAGE_ID_FILE, "utf8");
+    return messageId.trim();
+  } catch (error) {
+    return null;
+  }
+}
+
+async function saveMessageId(messageId) {
+  try {
+    await fs.writeFile(MESSAGE_ID_FILE, messageId, "utf8");
+  } catch (error) {
+    console.error("❌ Failed to save message ID:", error);
+  }
+}
 
 async function loadMapData() {
   try {
@@ -119,6 +137,7 @@ async function updateServerStatus() {
         embeds: [embed],
         files: [logoFile],
       });
+      await saveMessageId(statusMessage.id);
     } else {
       await statusMessage.edit({
         embeds: [embed],
@@ -130,11 +149,25 @@ async function updateServerStatus() {
   }
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}!`);
   console.log(`📡 Monitoring server: ${SERVER_HOST}:${SERVER_PORT}`);
   console.log(`📢 Posting updates to channel: ${CHANNEL_ID}`);
   console.log(`⏱️  Update interval: ${UPDATE_INTERVAL / 1000} seconds`);
+
+  // Try to load existing message ID
+  const savedMessageId = await loadMessageId();
+  if (savedMessageId) {
+    try {
+      const channel = await client.channels.fetch(CHANNEL_ID);
+      statusMessage = await channel.messages.fetch(savedMessageId);
+      console.log(`📝 Found existing status message: ${savedMessageId}`);
+    } catch (error) {
+      console.log("⚠️  Previous status message not found, will create new one");
+      statusMessage = null;
+    }
+  }
+
   updateServerStatus();
   setInterval(updateServerStatus, UPDATE_INTERVAL);
 });
