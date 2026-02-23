@@ -38,24 +38,33 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
 const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
 const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
-const MESSAGE_ID_FILE = path.join(__dirname, ".message-id");
+const MESSAGE_ID_FILE = path.join(__dirname, "message-state.json");
 
 let statusMessage;
 
-async function loadMessageId() {
+async function loadMessageState() {
   try {
-    const messageId = await fs.readFile(MESSAGE_ID_FILE, "utf8");
-    return messageId.trim();
+    const data = await fs.readFile(MESSAGE_ID_FILE, "utf8");
+    const state = JSON.parse(data);
+    console.log(`📂 Loaded message state from file:`, state);
+    return state;
   } catch (error) {
+    console.log("📂 No previous message state found");
     return null;
   }
 }
 
-async function saveMessageId(messageId) {
+async function saveMessageState(messageId, channelId) {
   try {
-    await fs.writeFile(MESSAGE_ID_FILE, messageId, "utf8");
+    const state = {
+      messageId,
+      channelId,
+      lastUpdated: new Date().toISOString(),
+    };
+    await fs.writeFile(MESSAGE_ID_FILE, JSON.stringify(state, null, 2), "utf8");
+    console.log(`💾 Saved message state:`, state);
   } catch (error) {
-    console.error("❌ Failed to save message ID:", error);
+    console.error("❌ Failed to save message state:", error);
   }
 }
 
@@ -133,12 +142,15 @@ async function updateServerStatus() {
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!statusMessage) {
+      console.log("📤 Creating new status message...");
       statusMessage = await channel.send({
         embeds: [embed],
         files: [logoFile],
       });
-      await saveMessageId(statusMessage.id);
+      await saveMessageState(statusMessage.id, CHANNEL_ID);
+      console.log(`✅ Created new message with ID: ${statusMessage.id}`);
     } else {
+      console.log(`🔄 Updating existing message: ${statusMessage.id}`);
       await statusMessage.edit({
         embeds: [embed],
         files: [logoFile],
@@ -155,17 +167,29 @@ client.once("ready", async () => {
   console.log(`📢 Posting updates to channel: ${CHANNEL_ID}`);
   console.log(`⏱️  Update interval: ${UPDATE_INTERVAL / 1000} seconds`);
 
-  // Try to load existing message ID
-  const savedMessageId = await loadMessageId();
-  if (savedMessageId) {
+  // Try to load existing message state
+  const savedState = await loadMessageState();
+  if (
+    savedState &&
+    savedState.messageId &&
+    savedState.channelId === CHANNEL_ID
+  ) {
     try {
       const channel = await client.channels.fetch(CHANNEL_ID);
-      statusMessage = await channel.messages.fetch(savedMessageId);
-      console.log(`📝 Found existing status message: ${savedMessageId}`);
+      statusMessage = await channel.messages.fetch(savedState.messageId);
+      console.log(
+        `✅ Found and will update existing message: ${savedState.messageId}`,
+      );
     } catch (error) {
       console.log("⚠️  Previous status message not found, will create new one");
+      console.log("   Error:", error.message);
       statusMessage = null;
     }
+  } else if (savedState && savedState.channelId !== CHANNEL_ID) {
+    console.log(
+      `⚠️  Saved message was for different channel, will create new one`,
+    );
+    statusMessage = null;
   }
 
   updateServerStatus();

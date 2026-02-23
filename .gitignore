@@ -44,4 +44,4 @@ tmp/
 temp/
 
 # Runtime data
-.message-id
+message-state.json

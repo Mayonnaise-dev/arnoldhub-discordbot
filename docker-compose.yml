@@ -10,5 +10,5 @@ services:
     volumes:
       # Mount surf map data (update path to your surf_.json location)
       - ./surf_.json:/usr/src/app/surf_.json:ro
-      # Persist message ID across container restarts
-      - ./.message-id:/usr/src/app/.message-id
+      # Persist message state across container restarts
+      - ./message-state.json:/usr/src/app/message-state.json
