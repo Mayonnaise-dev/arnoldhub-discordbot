@@ -77,10 +77,12 @@ async function updateServerStatus() {
       .setThumbnail("attachment://arnoldhublogo.png")
       .addFields(
         { name: "Map", value: state.map, inline: true },
-        { name: "Players", value: `${state.players.length}/64`, inline: true }
+        { name: "Players", value: `${state.players.length}/64`, inline: true },
       )
       .setTimestamp()
-      .setFooter({ text: `Connect: connect ${SERVER_HOST}` });
+      .setFooter({
+        text: `View map: https://surf.arnoldhub.com/map/${state.map}`,
+      });
 
     if (mapInfo) {
       embed.addFields({
