@@ -36,8 +36,41 @@ const SERVER_HOST = process.env.SERVER_HOST || "surfing.arnoldhub.com";
 const SERVER_PORT = parseInt(process.env.SERVER_PORT) || 27015;
 const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
+const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
+const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
+const DATA_DIR = path.join(__dirname, "assets");
+const MESSAGE_ID_FILE = path.join(DATA_DIR, "message-state.json");
 
 let statusMessage;
+
+async function loadMessageState() {
+  try {
+    const data = await fs.readFile(MESSAGE_ID_FILE, "utf8");
+    const state = JSON.parse(data);
+    console.log(`📂 Loaded message state from file:`, state);
+    return state;
+  } catch (error) {
+    console.log("📂 No previous message state found");
+    return null;
+  }
+}
+
+async function saveMessageState(messageId, channelId) {
+  try {
+    // Ensure data directory exists
+    await fs.mkdir(DATA_DIR, { recursive: true });
+
+    const state = {
+      messageId,
+      channelId,
+      lastUpdated: new Date().toISOString(),
+    };
+    await fs.writeFile(MESSAGE_ID_FILE, JSON.stringify(state, null, 2), "utf8");
+    console.log(`💾 Saved message state:`, state);
+  } catch (error) {
+    console.error("❌ Failed to save message state:", error);
+  }
+}
 
 async function loadMapData() {
   try {
@@ -77,10 +110,19 @@ async function updateServerStatus() {
       .setThumbnail("attachment://arnoldhublogo.png")
       .addFields(
         { name: "Map", value: state.map, inline: true },
-        { name: "Players", value: `${state.players.length}/64`, inline: true }
+        {
+          name: "Players",
+          value: `${state.players.length}/${SERVER_MAX_PLAYERS}`,
+          inline: true,
+        },
       )
-      .setTimestamp()
-      .setFooter({ text: `Connect: connect ${SERVER_HOST}` });
+      .setTimestamp();
+
+    if (WEBPANEL_MAP_BASE_URL) {
+      embed.setURL(`${WEBPANEL_MAP_BASE_URL}${state.map}`).setFooter({
+        text: `Click title to view map on webpanel`,
+      });
+    }
 
     if (mapInfo) {
       embed.addFields({
@@ -96,13 +138,23 @@ async function updateServerStatus() {
       });
     }
 
+    embed.addFields({
+      name: "Connect Info",
+      value: `connect ${SERVER_HOST}`,
+      inline: false,
+    });
+
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (!statusMessage) {
+      console.log("📤 Creating new status message...");
       statusMessage = await channel.send({
         embeds: [embed],
         files: [logoFile],
       });
+      await saveMessageState(statusMessage.id, CHANNEL_ID);
+      console.log(`✅ Created new message with ID: ${statusMessage.id}`);
     } else {
+      console.log(`🔄 Updating existing message: ${statusMessage.id}`);
       await statusMessage.edit({
         embeds: [embed],
         files: [logoFile],
@@ -113,11 +165,37 @@ async function updateServerStatus() {
   }
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}!`);
   console.log(`📡 Monitoring server: ${SERVER_HOST}:${SERVER_PORT}`);
   console.log(`📢 Posting updates to channel: ${CHANNEL_ID}`);
   console.log(`⏱️  Update interval: ${UPDATE_INTERVAL / 1000} seconds`);
+
+  // Try to load existing message state
+  const savedState = await loadMessageState();
+  if (
+    savedState &&
+    savedState.messageId &&
+    savedState.channelId === CHANNEL_ID
+  ) {
+    try {
+      const channel = await client.channels.fetch(CHANNEL_ID);
+      statusMessage = await channel.messages.fetch(savedState.messageId);
+      console.log(
+        `✅ Found and will update existing message: ${savedState.messageId}`,
+      );
+    } catch (error) {
+      console.log("⚠️  Previous status message not found, will create new one");
+      console.log("   Error:", error.message);
+      statusMessage = null;
+    }
+  } else if (savedState && savedState.channelId !== CHANNEL_ID) {
+    console.log(
+      `⚠️  Saved message was for different channel, will create new one`,
+    );
+    statusMessage = null;
+  }
+
   updateServerStatus();
   setInterval(updateServerStatus, UPDATE_INTERVAL);
 });

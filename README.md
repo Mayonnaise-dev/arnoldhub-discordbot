@@ -12,7 +12,9 @@ A Discord bot that displays real-time CS:GO/CS2 surf server information with map
 - 👥 Live player count display
 - 🗺️ Current map information with thumbnail images
 - 📊 Map tier and type information from local database
+- 🔗 Optional clickable link to webpanel map details
 - 🔄 Auto-updating status messages (default: every 60 seconds)
+- 💾 Message persistence - updates same message after bot restart
 - 🐳 Docker support for easy deployment
 - ⚙️ Configurable via environment variables
 
@@ -87,14 +89,15 @@ npm start
 
 All configuration is done through environment variables in your `.env` file:
 
-| Variable          | Description                           | Default                 |
-| ----------------- | ------------------------------------- | ----------------------- |
-| `DISCORD_TOKEN`   | Your Discord bot token                | Required                |
-| `CHANNEL_ID`      | Discord channel ID for status updates | Required                |
-| `SERVER_HOST`     | Your game server hostname or IP       | `surfing.arnoldhub.com` |
-| `SERVER_PORT`     | Your game server port                 | `27015`                 |
-| `SERVER_TYPE`     | Server type for GameDig               | `csgo`                  |
-| `UPDATE_INTERVAL` | Update interval in milliseconds       | `60000` (1 minute)      |
+| Variable                | Description                                                               | Default                 |
+| ----------------------- | ------------------------------------------------------------------------- | ----------------------- |
+| `DISCORD_TOKEN`         | Your Discord bot token                                                    | Required                |
+| `CHANNEL_ID`            | Discord channel ID for status updates                                     | Required                |
+| `SERVER_HOST`           | Your game server hostname or IP                                           | `surfing.arnoldhub.com` |
+| `SERVER_PORT`           | Your game server port                                                     | `27015`                 |
+| `SERVER_TYPE`           | Server type for GameDig                                                   | `csgo`                  |
+| `UPDATE_INTERVAL`       | Update interval in milliseconds                                           | `60000` (1 minute)      |
+| `WEBPANEL_MAP_BASE_URL` | Base URL for webpanel map links (e.g., `https://surf.arnoldhub.com/map/`) | Optional                |
 
 ## Getting Your Discord Bot Token
 
@@ -113,6 +116,17 @@ All configuration is done through environment variables in your `.env` file:
 1. Enable Developer Mode in Discord (Settings > Advanced > Developer Mode)
 2. Right-click on the channel where you want the bot to post
 3. Click "Copy Channel ID"
+
+## Message Persistence
+
+The bot automatically saves message state to a `assets/message-state.json` file. When the bot restarts, it will:
+
+1. Check if a previous message state exists
+2. Verify the message is in the correct channel
+3. Attempt to fetch and update the existing message
+4. Only create a new message if the previous one cannot be found (e.g., deleted or in a different channel)
+
+This ensures that your Discord channel doesn't get cluttered with multiple status messages after bot restarts or updates. The state file includes the message ID, channel ID, and last update timestamp for tracking.
 
 ## Map Data
 
