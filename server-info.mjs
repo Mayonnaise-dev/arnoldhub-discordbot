@@ -38,7 +38,8 @@ const SERVER_TYPE = process.env.SERVER_TYPE || "csgo";
 const UPDATE_INTERVAL = parseInt(process.env.UPDATE_INTERVAL) || 60000;
 const WEBPANEL_MAP_BASE_URL = process.env.WEBPANEL_MAP_BASE_URL;
 const SERVER_MAX_PLAYERS = parseInt(process.env.SERVER_MAX_PLAYERS) || 64;
-const MESSAGE_ID_FILE = path.join(__dirname, "message-state.json");
+const DATA_DIR = path.join(__dirname, "data");
+const MESSAGE_ID_FILE = path.join(DATA_DIR, "message-state.json");
 
 let statusMessage;
 
@@ -56,6 +57,9 @@ async function loadMessageState() {
 
 async function saveMessageState(messageId, channelId) {
   try {
+    // Ensure data directory exists
+    await fs.mkdir(DATA_DIR, { recursive: true });
+
     const state = {
       messageId,
       channelId,

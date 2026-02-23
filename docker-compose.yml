@@ -11,4 +11,4 @@ services:
       # Mount surf map data (update path to your surf_.json location)
       - ./surf_.json:/usr/src/app/surf_.json:ro
       # Persist message state across container restarts
-      - ./message-state.json:/usr/src/app/message-state.json
+      - ./data:/usr/src/app/data
